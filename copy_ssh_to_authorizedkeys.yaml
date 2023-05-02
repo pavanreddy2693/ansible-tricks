@@ -1,0 +1,25 @@
+---
+- name: Copy SSH key to authorized keys
+  hosts: all   # Replace with the target host or group of hosts
+  become: yes  # If necessary, become root to modify the authorized keys file
+
+  vars:
+    ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"  # Replace with the path to your SSH key
+
+  tasks:
+    - name: Create the authorized keys directory
+      file:
+        path: "/home/{{ username }}/.ssh"
+        state: directory
+        mode: "0700"
+
+    - name: Add the SSH key to authorized keys
+      lineinfile:
+        dest: "/home/{{ username }}/.ssh/authorized_keys"
+        line: "{{ ssh_key }}"
+        create: yes
+        mode: "0600"
+        
+        
+# run this command, it required username parameter to copy the file in right authorized keys file
+#ansible-playbook -i ~/nodehosts -u os-username-to-ssh --private-key="ssh-key.pem" copy_ssh_to_authorizedkeys.yaml
